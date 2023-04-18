@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker
+spec:
+  ports:
+    - port: 8080
+  selector:
+    app: worker
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+spec:
+  selector:
+    matchLabels:
+      app: worker
+  replicas: 2
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - image: harbor.fsa.os.univ-lyon1.fr/fsa/worker:latest
+          name: worker
+          ports:
+            - containerPort: 8080
+              name: worker
+          env:
+            - name: TIW_FSA_WORKER_LATENCE
+              value: "10000"
