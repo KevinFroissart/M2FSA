@@ -58,6 +58,18 @@ spec:
           volumeMounts:
             - name: postgres-persistent-storage
               mountPath: /var/lib/postgresql/data
+        - image: prometheuscommunity/postgres-exporter:v0.11.1
+          name: postgres-exporter
+          env:
+            - name: DATA_SOURCE_URI
+              value: postgres://apidb:apidbpwd@localhost:5432/apidb?sslmode=disable
+            - name: DATA_SOURCE_USER
+              value: apidb
+            - name: DATA_SOURCE_PASS
+              value: apidbpwd
+          ports:
+            - containerPort: 9187
+              name: pg-exporter
       volumes:
         - name: postgres-persistent-storage
           persistentVolumeClaim:
