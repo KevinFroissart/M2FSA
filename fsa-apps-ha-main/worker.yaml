@@ -26,11 +26,18 @@ spec:
         app: worker
     spec:
       containers:
-        - image: harbor.fsa.os.univ-lyon1.fr/fsa/worker:latest
+        - image: harbor.fsa.os.univ-lyon1.fr/prj-15/worker:latest
           name: worker
           ports:
             - containerPort: 8080
               name: worker
-          env:
-            - name: TIW_FSA_WORKER_LATENCE
-              value: "10000"
+
+        - livenessProbe:
+            httpGet:
+                path: /actuator/health
+                port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          name: worker
+      imagePullSecrets:
+        - name: harborcred

@@ -32,7 +32,7 @@ spec:
         app: api
     spec:
       containers:
-        - image: harbor.fsa.os.univ-lyon1.fr/fsa/api:latest
+        - image: harbor.fsa.os.univ-lyon1.fr/prj-15/api:latest
           name: api
           ports:
             - containerPort: 8081
@@ -40,3 +40,5 @@ spec:
           envFrom:
             - configMapRef:
                 name: api-config
+      imagePullSecrets:
+        - name: harborcred
