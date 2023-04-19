@@ -18,3 +18,4 @@ kubectl config set-context $(kubectl config current-context) --namespace=prj-15
 - prometheus port-forward `kubectl port-forward deployment/prometheus-server 9090:9090`
 
 TODO: Modifier la configuration de prometheus pour récupérer les métriques ainsi exportées et vérifier que la récupération fonctionne (par exemple en regardant l’onglet status -> targets ou en affichant la métrique pg_stat).
+A lire: https://devopscube.com/setup-prometheus-monitoring-on-kubernetes/
