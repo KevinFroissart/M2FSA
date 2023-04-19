@@ -1,5 +1,7 @@
 package tiw.fsa.api.encryption;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tiw.fsa.api.user.UtilisateurNotFoundException;
@@ -10,6 +12,9 @@ import tiw.fsa.api.user.UtilisateurRepository;
  */
 @Service
 public class KeyService {
+
+    private static final Logger log = LoggerFactory.getLogger(EncryptService.class);
+
     private final KeyRepository keyRepository;
     private final UtilisateurRepository utilisateurRepository;
 
@@ -26,6 +31,7 @@ public class KeyService {
      * @throws UtilisateurNotFoundException si l'utilisateur n'existe pas
      */
     public void createKey(String login, String keyname) throws UtilisateurNotFoundException {
+        log.trace("Creating key {} for user {}", keyname, login);
         var uOpt = utilisateurRepository.findById(login);
         if (uOpt.isPresent()) {
             var id = new Key.IdC(uOpt.get(), keyname);
@@ -35,6 +41,7 @@ public class KeyService {
                 key.setId(keyname);
                 key.setUtilisateur(uOpt.get());
                 keyRepository.save(key);
+                log.trace("Key {} created for user {}", keyname, login);
             }
         } else { // no such user
             throw new UtilisateurNotFoundException();
@@ -49,10 +56,12 @@ public class KeyService {
      * @throws UtilisateurNotFoundException si l'utilisateur n'existe pas
      */
     public String[] getKeys(String login) throws UtilisateurNotFoundException {
+        log.trace("Getting keys for user {}", login);
         if (!utilisateurRepository.existsById(login)) {
             throw new UtilisateurNotFoundException();
         }
         var keys = keyRepository.getKeyIdsByLogin(login);
+        log.trace("Found {} keys for user {}", keys.size(), login);
         return keys.toArray(new String[keys.size()]);
     }
 
@@ -64,6 +73,7 @@ public class KeyService {
      * @return true if the key exists for this user
      */
     public boolean keyExists(String login, String keyname) {
+        log.trace("Checking if key {} exists for user {}", keyname, login);
         return keyRepository.existsByIdAndUtilisateur_Login(keyname, login);
     }
 
@@ -73,6 +83,7 @@ public class KeyService {
      */
     @Transactional
     public void deleteUserKeys(String login) {
+        log.trace("Deleting all keys for user {}", login);
         keyRepository.deleteAllByUtilisateur_Login(login);
     }
 }

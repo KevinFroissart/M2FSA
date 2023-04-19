@@ -14,7 +14,7 @@ import tiw.fsa.api.security.SecurityUtils;
 @RestController
 @RequestMapping(path = "/user")
 public class UtilisateurController {
-    private static final Logger LOG = LoggerFactory.getLogger(UtilisateurController.class);
+    private static final Logger log = LoggerFactory.getLogger(UtilisateurController.class);
 
     private final UtilisateurService utilisateurService;
 
@@ -23,7 +23,7 @@ public class UtilisateurController {
     }
 
     /**
-     * Récupères les information sur un utilisateur
+     * Récupères les informations sur un utilisateur
      * @param login le login de l'utilisateur
      * @return une description de l'utilisateur
      * @throws UtilisateurNotFoundException si l'utilisateur n'existe pas
@@ -33,6 +33,7 @@ public class UtilisateurController {
     @ResponseBody
     public UtilisateurDTO getUtilisateur(@PathVariable(name = "login") String login)
             throws UtilisateurNotFoundException {
+        log.info("/user/{login} - Getting user: {}", login);
         return utilisateurService.getUtilisateur(login);
     }
 
@@ -48,15 +49,16 @@ public class UtilisateurController {
     @ResponseStatus(HttpStatus.OK)
     public UtilisateurDTO createOrUpdateUtilisateur
             (@RequestBody UtilisateurDTO utilisateurDTO) throws UtilisateurIncompletException, ForbiddenAccessException {
+        log.info("/user - Creating or updating user: {}", utilisateurDTO);
         ApiUserDetails principal = SecurityUtils.getPrincipal();
         if (!principal.isAdmin()) {
-            LOG.debug("is not admin");
+            log.debug("is not admin");
             if (principal.getUsername().equals(utilisateurDTO.login())) {
-                LOG.debug("is same user");
+                log.debug("is same user");
                 // only admin can change role
                 utilisateurDTO = new UtilisateurDTO(utilisateurDTO.login(), utilisateurDTO.password(), null);
             } else {
-                LOG.debug("Attempt to post to user with {} role", principal.getRole());
+                log.debug("Attempt to post to user with {} role", principal.getRole());
                 // only admin or the user him/herself can change details of a user
                 throw new ForbiddenAccessException("User "+principal.getUsername()+" cannot modify user "+utilisateurDTO.login());
             }

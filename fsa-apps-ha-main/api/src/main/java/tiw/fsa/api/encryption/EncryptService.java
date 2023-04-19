@@ -11,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @Service
 public class EncryptService {
-    private static final Logger LOG = LoggerFactory.getLogger(EncryptService.class);
+    private static final Logger log = LoggerFactory.getLogger(EncryptService.class);
     private final KeyService keyService;
     private final RestTemplate restTemplate = new RestTemplate();
     @Value("${tiw.fsa.api.worker.url}")
@@ -33,6 +33,7 @@ public class EncryptService {
      * @throws WorkerException    if the request to the worker failed somehow
      */
     private String callWorker(String method, String login, String keyname, String data) throws NoSuchKeyException, WorkerException {
+        log.trace("Calling worker for {} with key {} for user {}", method, keyname, login);
         if (!keyService.keyExists(login, keyname)) {
             throw new NoSuchKeyException("La cle " + keyname + " pour l'utilisateur " + login + " n'existe pas.");
         }
@@ -40,13 +41,14 @@ public class EncryptService {
         var result = restTemplate.postForEntity(url, data, String.class, keyname);
         var status = result.getStatusCode();
         if (status.is5xxServerError() || status.is4xxClientError()) {
-            LOG.error("Request to failed with code {}", status.value());
+            log.error("Request to failed with code {}", status.value());
             throw new WorkerException();
         }
         if (data.length() > 0 && (!result.hasBody() || result.getBody().length() == 0)) {
-            LOG.error("Got an empty result from worker");
+            log.error("Got an empty result from worker");
             throw new WorkerException("Empty result");
         }
+        log.trace("Worker returned {} bytes", result.getBody().length());
         return result.getBody();
     }
 

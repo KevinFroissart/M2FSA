@@ -17,6 +17,7 @@ public class EncryptionService {
     private long latence;
 
     public String encrypt(String keyName, String data) throws EncryptException {
+        log.trace("Encryption started with key: {} and data: {}", keyName, data);
         String key = keyName;
         byte[] dataB = Base64.getDecoder().decode(data);
         byte[] keyB = key.getBytes();
@@ -29,10 +30,12 @@ public class EncryptionService {
         } catch (InterruptedException e) {
             throw new EncryptException(e);
         }
+        log.trace("Encryption finished with key: {} and data: {}", keyName, data);
         return new String(Base64.getEncoder().encode(dataC), StandardCharsets.ISO_8859_1);
     }
 
     public String decrypt(String keyName, String data) throws DecryptException {
+        log.trace("Decryption started with key: {} and data: {}", keyName, data);
         String key = keyName;
         byte[] dataB = Base64.getDecoder().decode(data);
         byte[] keyB = key.getBytes();
@@ -45,6 +48,7 @@ public class EncryptionService {
         } catch (InterruptedException e) {
             throw new DecryptException(e);
         }
+        log.trace("Decryption finished with key: {} and data: {}", keyName, data);
         return new String(Base64.getEncoder().encode(dataC), StandardCharsets.ISO_8859_1);
     }
 }

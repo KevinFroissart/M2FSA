@@ -1,5 +1,7 @@
 package tiw.fsa.api.user;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class UtilisateurService {
+
+    private static final Logger log = LoggerFactory.getLogger(UtilisateurController.class);
+
     private final UtilisateurRepository utilisateurRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -25,6 +30,7 @@ public class UtilisateurService {
      * @throws UtilisateurNotFoundException si l'utilisateur n'existe pas
      */
     public UtilisateurDTO getUtilisateur(String login) throws UtilisateurNotFoundException {
+        log.trace("Getting user {}", login);
         return utilisateurRepository
                 .findById(login)
                 .map(UtilisateurDTO::fromUtilisateur)
@@ -40,6 +46,7 @@ public class UtilisateurService {
      */
     @Transactional
     public UtilisateurDTO createOrUpdateUtilisateur(UtilisateurDTO utilisateurDTO) throws UtilisateurIncompletException {
+        log.trace("Creating or updating user {}", utilisateurDTO.login());
         var utilisateurOpt = utilisateurRepository.findById(utilisateurDTO.login());
         if (utilisateurOpt.isPresent()) {
             var utilisateur = utilisateurOpt.get();
@@ -50,6 +57,7 @@ public class UtilisateurService {
                 utilisateur.setRole(utilisateurDTO.role());
             }
             utilisateurRepository.save(utilisateur);
+            log.trace("User {} updated", utilisateurDTO.login());
             return UtilisateurDTO.fromUtilisateur(utilisateur);
         } else {
             if (utilisateurDTO.password() == null) {
@@ -64,17 +72,19 @@ public class UtilisateurService {
                 }
                 utilisateur.setRole(role);
                 utilisateurRepository.save(utilisateur);
+                log.trace("User {} created", utilisateurDTO.login());
                 return UtilisateurDTO.fromUtilisateur(utilisateur);
             }
         }
     }
 
     public boolean utilisateurExists(String login) {
+        log.trace("Checking if user {} exists", login);
         return utilisateurRepository.existsById(login);
     }
 
     public void deleteUtilisateur(String login) {
-
+        log.trace("Deleting user {}", login);
         utilisateurRepository.deleteById(login);
     }
 }

@@ -1,5 +1,7 @@
 package tiw.fsa.api.encryption;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tiw.fsa.api.security.ForbiddenAccessException;
@@ -12,6 +14,9 @@ import tiw.fsa.api.user.UtilisateurNotFoundException;
 @RestController
 @RequestMapping("/key")
 public class KeyController {
+
+    private static final Logger log = LoggerFactory.getLogger(EncryptService.class);
+
     private final KeyService keyService;
 
     public KeyController(KeyService keyService) {
@@ -24,6 +29,7 @@ public class KeyController {
             @PathVariable("login") String login,
             @PathVariable("keyname") String keyname)
             throws UtilisateurNotFoundException, ForbiddenAccessException {
+        log.info("/key/{login}/{keyname} - Creating key {} for user {}", keyname, login);
         SecurityUtils.checkCurrentUserOrAdmin(login);
         keyService.createKey(login, keyname);
     }
@@ -32,6 +38,7 @@ public class KeyController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public String[] getKeys(@PathVariable("login") String login) throws ForbiddenAccessException, UtilisateurNotFoundException {
+        log.info("/key/{login} - Getting keys for user {}", login);
         SecurityUtils.checkCurrentUserOrAdmin(login);
         return keyService.getKeys(login);
     }

@@ -12,6 +12,7 @@ import java.util.List;
  * Encapsule un utilisateur pour fournir une implémentation attendue par Spring Security.
  */
 public class ApiUserDetails implements UserDetails {
+
     private final Utilisateur utilisateur;
 
     public ApiUserDetails(Utilisateur utilisateur) {
