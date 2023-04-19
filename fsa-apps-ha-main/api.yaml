@@ -40,5 +40,12 @@ spec:
           envFrom:
             - configMapRef:
                 name: api-config
+        - livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          name: worker
       imagePullSecrets:
         - name: harborcred
