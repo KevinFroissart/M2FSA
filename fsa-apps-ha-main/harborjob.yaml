@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-harbor-pull
+spec:
+  template:
+    spec:
+      containers:
+        - name: test-harbor-pull
+          image: harbor.fsa.os.univ-lyon1.fr/prj-15/montest:latest
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: harborcred
+  backoffLimit: 4
