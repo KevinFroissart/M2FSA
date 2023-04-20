@@ -5,6 +5,9 @@ metadata:
 spec:
   ports:
     - port: 5432
+      name: postgres
+    - port: 9187
+      name: pg-exporter
   selector:
     app: postgres
   clusterIP: None

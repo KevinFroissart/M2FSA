@@ -22,19 +22,22 @@ data:
       - job_name: "prometheus"
         static_configs:
           - targets: ["localhost:9090"]
+      - job_name: "postgresql"
+        static_configs:
+          - targets: ["postgres:9187"]
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: prometheus-server
+  name: prometheus
 spec:
   selector:
     matchLabels:
-      app: prometheus-server
+      app: prometheus
   template:
     metadata:
       labels:
-        app: prometheus-server
+        app: prometheus
     spec:
       containers:
         - name: prometheus
