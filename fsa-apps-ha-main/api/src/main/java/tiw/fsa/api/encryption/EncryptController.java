@@ -1,7 +1,11 @@
 package tiw.fsa.api.encryption;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tiw.fsa.api.security.ForbiddenAccessException;
@@ -16,10 +20,21 @@ public class EncryptController {
 
     private static final Logger log = LoggerFactory.getLogger(EncryptService.class);
 
+    @Autowired private MeterRegistry meterRegistry;
+    private Counter encryptCallCounter;
+
+
     private final EncryptService encryptService;
 
     public EncryptController(EncryptService encryptService) {
         this.encryptService = encryptService;
+    }
+
+    @PostConstruct
+    public void init() {
+        encryptCallCounter = Counter.builder("encrypt.route.calls")
+                .description("Number of calls to the encrypt route")
+                .register(meterRegistry);
     }
 
     /**
@@ -34,6 +49,7 @@ public class EncryptController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public String encrypt(@PathVariable("login") String login, @PathVariable("keyname") String keyname, @RequestBody String data) throws ForbiddenAccessException, NoSuchKeyException, WorkerException {
+        encryptCallCounter.increment();
         log.info("/crypt/{login}/{keyname}/encrypt - Encrypting data: {} with key: {}", data, keyname);
         SecurityUtils.checkCurrentUser(login);
         return encryptService.encrypt(login, keyname, data);

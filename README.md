@@ -15,4 +15,5 @@ kubectl config set-context $(kubectl config current-context) --namespace=prj-15
 
 ## TP 2
 ### Commands :
+- docker login `docker login harbor.fsa.os.univ-lyon1.fr`
 - prometheus port-forward `kubectl port-forward deployment/prometheus 9090:9090`

@@ -1,7 +1,11 @@
 package tiw.fsa.api.encryption;
 
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tiw.fsa.api.user.UtilisateurNotFoundException;
@@ -15,12 +19,22 @@ public class KeyService {
 
     private static final Logger log = LoggerFactory.getLogger(EncryptService.class);
 
+    @Autowired private MeterRegistry meterRegistry;
+    private Gauge keyCountGauge;
+
     private final KeyRepository keyRepository;
     private final UtilisateurRepository utilisateurRepository;
 
     public KeyService(KeyRepository keyRepository, UtilisateurRepository utilisateurRepository) {
         this.keyRepository = keyRepository;
         this.utilisateurRepository = utilisateurRepository;
+    }
+
+    @PostConstruct
+    public void init() {
+        keyCountGauge = Gauge.builder("key.count", keyRepository, KeyRepository::count)
+                .description("Number of keys")
+                .register(meterRegistry);
     }
 
     /**
@@ -41,6 +55,7 @@ public class KeyService {
                 key.setId(keyname);
                 key.setUtilisateur(uOpt.get());
                 keyRepository.save(key);
+                keyCountGauge.measure();
                 log.trace("Key {} created for user {}", keyname, login);
             }
         } else { // no such user
@@ -83,6 +98,7 @@ public class KeyService {
      */
     @Transactional
     public void deleteUserKeys(String login) {
+        keyCountGauge.measure();
         log.trace("Deleting all keys for user {}", login);
         keyRepository.deleteAllByUtilisateur_Login(login);
     }
