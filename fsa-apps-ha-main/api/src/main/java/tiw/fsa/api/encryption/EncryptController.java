@@ -1,5 +1,6 @@
 package tiw.fsa.api.encryption;
 
+import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
@@ -48,6 +49,7 @@ public class EncryptController {
     @PostMapping("/{login}/{keyname}/encrypt")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
+    @Timed(value = "encrypt.route.time", description = "Time spent in the encrypt route", extraTags = {"controller", "encrypt"})
     public String encrypt(@PathVariable("login") String login, @PathVariable("keyname") String keyname, @RequestBody String data) throws ForbiddenAccessException, NoSuchKeyException, WorkerException {
         encryptCallCounter.increment();
         log.info("/crypt/{login}/{keyname}/encrypt - Encrypting data: {} with key: {}", data, keyname);
@@ -67,6 +69,7 @@ public class EncryptController {
     @PostMapping("/{login}/{keyname}/decrypt")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
+    @Timed(value = "decrypt.route.time", description = "Time spent in the decrypt route", extraTags = {"controller", "decrypt"})
     public String decrypt(@PathVariable("login") String login, @PathVariable("keyname") String keyname, @RequestBody String data) throws ForbiddenAccessException, NoSuchKeyException, WorkerException {
         log.info("/crypt/{login}/{keyname}/decrypt - Decrypting data: {} with key: {}", data, keyname);
         SecurityUtils.checkCurrentUser(login);
