@@ -41,18 +41,18 @@ public class WorkerControllerRunner  implements CommandLineRunner {
         // the CoreV1Api loads default api-client from global configuration.
         CoreV1Api api = new CoreV1Api();
         var list = api.listNamespacedPod(
-                "default", null, null, null,
-                null, null, null, null,
+                "prj-15", null, null, null,
+                null, "app=worker", null, null,
                 null, null, null);
         for (var item: list.getItems()) {
             log.info("Found deployment {}", item.getMetadata().getName());
         }
         AppsV1Api apps = new AppsV1Api();
-        var scale = apps.readNamespacedDeploymentScale("api-deployment","default", null);
+        var scale = apps.readNamespacedDeploymentScale("worker","default", null);
         var spec = scale.getSpec();
         spec.setReplicas(3);
         scale.setSpec(spec);
-        apps.replaceNamespacedDeploymentScale("api-deployment","default",
+        apps.replaceNamespacedDeploymentScale("worker","default",
                 scale,null,null,null,null);
     }
 }
